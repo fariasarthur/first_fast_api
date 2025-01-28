@@ -1,29 +1,21 @@
 from http import HTTPStatus
 
 from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
 
-from first_fast_api.schemas import Message
+from first_fast_api.schemas import UserDB, UserPublic, UserSchema
 
 app = FastAPI()
 
-
-@app.get('/', status_code=HTTPStatus.OK, response_model=Message)
-def read_root():
-    return {'message': 'olá, tabacudo'}
+database = []
 
 
-@app.get('/secundario', status_code=HTTPStatus.OK, response_class=HTMLResponse)
-def read_html():
-    message_html = """
-    <html>
-        <head>
-            <title>CHAMUYEIRO</title>
-        </head>
-        <body>
-            <h1>SOY ASI UN TABACUDO</h1>
-        </body>
-    </html>
-    """
+@app.post('/users/', status_code=HTTPStatus.CREATED, response_model=UserPublic)
+def create_user(user: UserSchema):
+    user_with_id = UserDB(
+        id=len(database) + 1,
+        **user.model_dump(),  # transformando user em dicionário
+    )
 
-    return message_html
+    database.append(user_with_id)
+
+    return user_with_id
